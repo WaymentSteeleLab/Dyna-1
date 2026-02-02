@@ -31,6 +31,29 @@ def handle_name(args):
         pdb_name = random.randint(0, 100000)
     return f'{pdb_name}-Dyna1'
 
+def get_pdb_from_upload(args, pdb_id):
+    fixed_pdb = None
+    try:
+        protein_chain = ProteinChain.from_pdb(args.pdb, chain_id=args.chain, id=pdb_id)
+    except ValueError as e:
+        if "Illegal hybrid-36 string" not in str(e):
+            raise
+        import tempfile
+        with open(args.pdb) as fin, tempfile.NamedTemporaryFile("w", delete=False) as fout:
+            for line in fin:
+                if not line.startswith("ATOM"):
+                    continue 
+                fout.write(line)
+
+            fixed_pdb = fout.name
+
+        protein_chain = ProteinChain.from_pdb(fixed_pdb, chain_id=args.chain, id=pdb_id)
+    finally:
+        if fixed_pdb and os.path.exists(fixed_pdb):
+            os.remove(fixed_pdb)
+
+    return protein_chain
+
 def main(args):
 
     config, config_dict = utils.load_config(f'configs/esm3.yml', return_dict=True)
@@ -53,7 +76,7 @@ def main(args):
             if not os.path.getsize(args.pdb):
                 exit(f'{args.pdb} is empty.')
             pdb_id = args.pdb.split('/')[-1]
-            protein_chain = ProteinChain.from_pdb(args.pdb, chain_id=args.chain, id=pdb_id)
+            protein_chain = get_pdb_from_upload(args, pdb_id)
             protein = ESMProtein.from_protein_chain(protein_chain)
         encoder = model.model.encode(protein)
         struct_input = encoder.structure[1:-1].unsqueeze(0)
@@ -70,7 +93,8 @@ def main(args):
         token_seq = tokenizer.encode(args.sequence, add_special_tokens=False, return_tensors='np')
         seq_input = torch.from_numpy(token_seq).to(DEVICE)
         sequence_id = seq_input != 4099
-
+    
+    sequence_id = seq_input != 4099
     logits = model((seq_input, struct_input), sequence_id)
     p = utils.prob_adjusted(logits).cpu().detach().numpy()
 
@@ -105,4 +129,5 @@ if __name__=='__main__':
         if alphabets['protein'].search(args.sequence) is None:
             exit('Invalid sequence given.')
     main(args)
+
 
