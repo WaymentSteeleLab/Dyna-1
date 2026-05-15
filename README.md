@@ -37,6 +37,8 @@ pip install -r requirements.txt
 ```
 Then, download the model weights and upload them to the `model/weights` folder. The weights can be found on 🤗HuggingFace at <a href='https://huggingface.co/gelnesr/Dyna-1'>gelnesr/Dyna-1</a>. More information on how to download them can be found <a href='https://github.com/gelnesr/Dyna-1-public/blob/main/model/weights/README.md'>here</a>. 
 
+*CHTC users*: example scripts to build Apptainer and run Dyna-1 on CHTC are located [here](https://github.com/WaymentSteeleLab/apptainers/tree/main/dyna1).
+
 # Inference
 
 The best-performing Dyna-1 is based on ESM-3. To run this version, you will have to request access to the ESM-3 `esm3-sm-open-v1` weights at HuggingFace [here](https://huggingface.co/EvolutionaryScale/esm3-sm-open-v1). Follow the steps to agree to their License terms and receive your access token to the model weights. 
