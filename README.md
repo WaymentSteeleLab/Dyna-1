@@ -102,16 +102,18 @@ set cartoon_putty_scale_max, 10 #max_radius / min_radius
 
 *RelaxDB-CPMG* contains motion labels derived from 10 CPMG relaxation-dispersion datasets curated from literature.
 
+*mBMRB_data* contains files indicating protein sequence and assignment completion curated from the BMRB.
+
 These datasets are made available on 🤗HuggingFace at <a href='https://huggingface.co/datasets/gelnesr/RelaxDB'>datasets/gelnesr/RelaxDB</a>.
 
 In this repo, you can find: 
-- data formatted for input into Dyna-1 is in `data/RelaxDB_pkls_22jan2025.zip`
+- data formatted for input into Dyna-1 is in `data/RelaxDB/RelaxDB_pkls_22jan2025.zip` and `data/mBMRB_data.zip`
 - datasets in json format is in `data/RelaxDB_datasets/`
 - demo notebooks for demo notebooks for visualizing and using datasets to evaluate model outputs in `analysis/`
 
 # Training
 
-Training code will be made available upon journal publication.
+Training code can be found in `train.py` and `train-baselines.py`. Related scripts can be found under `scripts\`. To define which data split to use, modify the .yml files in `configs`. 
 
 # Citation
 
