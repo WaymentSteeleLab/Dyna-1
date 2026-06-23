@@ -2,6 +2,7 @@
 
 In this repository on GitHub, you can find:
 - `RelaxDB_pkls_30aug2025.zip`: unzip to access .pkl files (one per protein) for RelaxDB and RelaxDB-CPMG datasets.
+- `mBMRB_dataa.zip`: unzip to access .pkl files (one per protein) for the mBRMB dataset.
 - `RelaxDB_datasets/`: contains data in .json files for RelaxDB and RelaxDB-CPMG datasets.
 - `reproduce_RelaxDB`: code and original inputs to reproduce RelaxDB data cleaning and fitting.
 - `probs`: contains saved frequencies from mBMRB-Train, stored for calculating dummy baselines.
