@@ -17,6 +17,19 @@ dir:
 data:
   pair_rep: None
   sample_clusters: True
+  cluster: 'clusters/cluster_TMp5'
+  train:
+    split: 'train_30pc_TMp5'
+    crop_len: 400
+    type: 'missing'
+  test: 
+    split: 'test'
+    crop_len: 400
+    type: 'missing'
+  val: 
+    split: 'val'
+    crop_len: 400 
+    type: 'missing'
   relaxdb: 
     split: 'relaxdb'
     crop_len: 400
