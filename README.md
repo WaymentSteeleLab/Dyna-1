@@ -111,6 +111,8 @@ In this repo, you can find:
 - datasets in json format is in `data/RelaxDB_datasets/`
 - demo notebooks for demo notebooks for visualizing and using datasets to evaluate model outputs in `analysis/`
 
+Complete CPMG datasets and analysis scripts (RelaxDB-CPMG and two prospectively-tested proteins Chi19a and yjbJ) are hosted at https://zenodo.org/records/20834076. 
+
 # Training
 
 Training code can be found in `train.py` and `train-baselines.py`. Related scripts can be found under `scripts\`. To define which data split to use, modify the .yml files in `configs`. 
