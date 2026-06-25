@@ -30,7 +30,7 @@ VOCAB_CPMG = OrderedDict([
     ('A', 0),   # nothing
     ('.',1),    # missing
     ('X',1),    # exchange from Rex definition
-    ('Y',0)     # exchange from unsuppressed R2
+    ('Y',1)     # exchange from unsuppressed R2
 ])
 
 def mask_termini(seq):
