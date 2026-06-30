@@ -126,7 +126,7 @@ If you are using our code, datasets, or model, please use the following citation
 ```
 # License Terms
 
-These models are available under [MIT License](LICENSE.md).
+These models and code are available under [MIT License](LICENSE.md).
 
 # Acknowledgements
 
