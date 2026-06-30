@@ -8,8 +8,6 @@ Dyna-1 is a model introduced in our paper, ["Learning millisecond protein dynami
 
 Given a sequence and/or structure, Dyna-1 will predict the probability that each residue experiences micro-millisecond motions.
 
-Dyna-1 was achieved using the `esm3-sm-open-v1` weights from ESM-3. Inference with this model is subject to the EvolutionaryScale Cambrian Non-Commercial License Agreement of the ESM-3 Model and requires read permission of the weights found [here](https://huggingface.co/EvolutionaryScale/esm3-sm-open-v1). We also make available an alternate version of Dyna-1 that uses ESM-2 embeddings; use of this model is subject to a Non-Commercial License Agreement. 
-
 To make Dyna-1 readily accessible for research purposes, we also provide a [Google Colab](https://colab.research.google.com/github/WaymentSteeleLab/Dyna-1/blob/main/colab/Dyna_1.ipynb).
 
 We provide the curated datasets used to evaluate Dyna-1: 133 curated R1/R2/NOE datasets "RelaxDB" and 10 relaxation-dispersion Carr-Purcell-Meiboom-Gill datasets "RelaxDB-CPMG". 
@@ -47,10 +45,7 @@ in a CHTC sub script.
 
 # Inference
 
-The best-performing Dyna-1 is based on ESM-3. To run this version, you will have to request access to the ESM-3 `esm3-sm-open-v1` weights at HuggingFace [here](https://huggingface.co/EvolutionaryScale/esm3-sm-open-v1). Follow the steps to agree to their License terms and receive your access token to the model weights. 
-
-> [!NOTE]
-> If this is your first time requesting access to the ESM-3 weights, you may need to set up your access token. For more information on how to set up an SSH token, please consult <a href='https://huggingface.co/docs/hub/en/security-git-ssh'>this</a> tutorial. Alternatively, you can use the huggingface login prompt, which will prompt you for the access token each time you re-instantiate Dyna-1. This can be configured by adding the following code to the inference script: `from huggingface_hub import login; login()` 
+The best-performing Dyna-1 is based on ESM-3. To run this version, you will need to make sure you can access to the ESM-3 `esm3-sm-open-v1` weights at HuggingFace [here](https://huggingface.co/EvolutionaryScale/esm3-sm-open-v1).  
 
 To run inference using our best-performing model, run:
 
@@ -111,7 +106,7 @@ In this repo, you can find:
 - datasets in json format is in `data/RelaxDB_datasets/`
 - demo notebooks for demo notebooks for visualizing and using datasets to evaluate model outputs in `analysis/`
 
-Complete CPMG datasets and analysis scripts (RelaxDB-CPMG and two prospectively-tested proteins Chi19a and yjbJ) are hosted at https://zenodo.org/records/20834076. 
+Complete CPMG datasets and analysis scripts (RelaxDB-CPMG and two prospectively-tested proteins Chi19a and yjbJ) are hosted on [Zenodo](https://zenodo.org/records/20834076). 
 
 # Training
 
@@ -129,9 +124,13 @@ If you are using our code, datasets, or model, please use the following citation
     journal = {bioRxiv}
 }
 ```
+# License Terms
+
+These models are available under [MIT License](LICENSE.md).
+
 # Acknowledgements
 
-We would like to acknowledge the Evolutionary Scale Team for their contributions to the field with ESM-3. The code in `esm` is imported from `evolutionaryscale/esm` with all modifications identified and includes the associated LICENSE terms for the ESM-3 model.
+We would like to acknowledge the Evolutionary Scale Team for their contributions to the field with ESM-3. The code in `esm` is imported from `evolutionaryscale/esm` with all modifications identified.
 
 We would also like to acknowledge the FAIR Team for their contributions to the field with ESM-2. The ESM-2 model is called using the HuggingFace API call.
 
