@@ -1,8 +1,12 @@
 # Dyna-1
+
+![image](assets/dyna1.png)
+
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-yellow)](https://github.com/WaymentSteeleLab/makeshift/blob/main/LICENSE)
 [![Requires Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/WaymentSteeleLab/Dyna-1/blob/main/colab/Dyna_1.ipynb)
 [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/gelnesr/Dyna-1)
-![image](assets/dyna1.png)
 
 Dyna-1 is a model introduced in our paper, ["Learning millisecond protein dynamics from what is missing in NMR spectra"](https://www.biorxiv.org/content/10.1101/2025.03.19.642801v1).
 
