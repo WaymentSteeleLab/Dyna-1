@@ -1,7 +1,9 @@
 import warnings
 warnings.filterwarnings("ignore")
 from collections import OrderedDict
+import os
 import re
+from pathlib import Path
 import utils
 import torch
 import random
@@ -12,7 +14,7 @@ import MDAnalysis as mda
 
 from model.model import *
 from esm.sdk.api import ESMProtein
-from esm.utils.structure.protein_chain import ProteinChain
+from esm.utils.structure.protein_chain import ProteinChain, is_mmcif_path
 from transformers import AutoTokenizer
 
 warnings.filterwarnings("ignore")
@@ -26,12 +28,15 @@ def handle_name(args):
         if len(args.pdb) == 4:
             pdb_name = args.pdb
         else:
-            pdb_name = args.pdb.split('/') [-1][:-4]
+            pdb_name = Path(args.pdb).stem
     else:
         pdb_name = random.randint(0, 100000)
     return f'{pdb_name}-Dyna1'
 
 def get_pdb_from_upload(args, pdb_id):
+    if is_mmcif_path(args.pdb):
+        return ProteinChain.from_mmcif(args.pdb, chain_id=args.chain, id=pdb_id)
+
     fixed_pdb = None
     try:
         protein_chain = ProteinChain.from_pdb(args.pdb, chain_id=args.chain, id=pdb_id)
@@ -93,8 +98,7 @@ def main(args):
         token_seq = tokenizer.encode(args.sequence, add_special_tokens=False, return_tensors='np')
         seq_input = torch.from_numpy(token_seq).to(DEVICE)
         sequence_id = seq_input != 4099
-    
-    sequence_id = seq_input != 4099
+
     logits = model((seq_input, struct_input), sequence_id)
     p = utils.prob_adjusted(logits).cpu().detach().numpy()
 
@@ -122,7 +126,7 @@ if __name__=='__main__':
     parser.add_argument('--write_to_pdb', action='store_true', help='predictions written to the b-factors of the pdb')
     args = parser.parse_args()
     if not (args.sequence or args.pdb):
-        exit('Inference requires either a sequence or pdb input')
+        exit('Inference requires either a sequence or pdb/cif input')
 
     if args.sequence:
         alphabets = {'protein': re.compile('^[acdefghiklmnpqrstvwy]*$', re.I)}

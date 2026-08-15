@@ -32,6 +32,7 @@ from esm.utils.structure.metrics import (
 from esm.utils.structure.protein_chain import (
     PathOrBuffer,
     ProteinChain,
+    read_mmcif_atom_array,
 )
 from esm.utils.structure.protein_structure import (
     index_by_atom_name,
@@ -244,6 +245,18 @@ class ProteinComplex:
         atom_array = PDBFile.read(path).get_structure(
             model=1, extra_fields=["b_factor"]
         )
+
+        chains = []
+        for chain in bs.chain_iter(atom_array):
+            chain = chain[~chain.hetero]
+            if len(chain) == 0:
+                continue
+            chains.append(ProteinChain.from_atomarray(chain, id))
+        return ProteinComplex.from_chains(chains)
+
+    @classmethod
+    def from_mmcif(cls, path: PathOrBuffer, id: str | None = None) -> "ProteinComplex":
+        atom_array = read_mmcif_atom_array(path)
 
         chains = []
         for chain in bs.chain_iter(atom_array):

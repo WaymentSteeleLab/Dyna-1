@@ -1,29 +1,37 @@
-# Download Model Weights
+---
+license: other
+license_name: non-commercial-license-dyna1
+license_link: https://github.com/WaymentSteeleLab/Dyna-1/blob/main/LICENSE.txt
+datasets:
+- gelnesr/RelaxDB
+base_model:
+- EvolutionaryScale/esm3-sm-open-v1
+- facebook/esm2_t30_150M_UR50D
+tags:
+- proteins
+- nmr
+- dyna1
+---
 
-To access the model weights, we provide two options.
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/WaymentSteeleLab/Dyna-1/blob/main/colab/Dyna_1.ipynb)
+[![WaymentSteeleLab - Dyna-1](https://img.shields.io/static/v1?label=WaymentSteeleLab&message=Dyna-1&color=blue&logo=github)](https://github.com/WaymentSteeleLab/Dyna-1) 
 
-## From 🤗HuggingFace
+# Dyna-1 Model Card
 
-Dyna-1 model weights (for both ESM-3 and ESM-2 versions) can be accessed through HuggingFace at <a href='https://huggingface.co/gelnesr/Dyna-1'>gelnesr/Dyna-1</a>. 
+Dyna-1 is a model introduced in our paper, ["Learning millisecond protein dynamics from what is missing in NMR spectra"](https://www.biorxiv.org/content/10.1101/2025.03.19.642801v1).
 
-We recommend setting up and using `huggingface-cli` by running the following commands on the command line.
+Given a sequence and/or structure, Dyna-1 will predict the probability that each residue experiences micro-millisecond motions.
 
+Dyna-1 was achieved using the `esm3-sm-open-v1` weights from ESM-3. We also make available an alternate version of Dyna-1 that uses ESM-2 embeddings; use of this model is subject to a Non-Commercial License Agreement. 
+
+If you are using our code, datasets, or model, please use the following citation:
+```bibtex
+@article {Dyna-1,
+    author = {Wayment-Steele, Hannah K. and El Nesr, Gina and Hettiarachchi, Ramith and Kariyawasam, Hasindu and Ovchinnikov, Sergey and Kern, Dorothee},
+    title = {Learning millisecond protein dynamics from what is missing in NMR spectra},
+    year = {2025},
+    doi = {10.1101/2025.03.19.642801},
+    journal = {bioRxiv}
+}
 ```
-pip install -U "huggingface_hub[cli]"
-huggingface-cli download gelnesr/Dyna-1 --local-dir "model/weights/"
-```
-
-Another option is to use the `git clone` to download, set the download directory to `model/weights`. This will require doing the following:
-
-```
-git lfs install
-git clone git@hf.co:gelnesr/Dyna-1
-```
-
-More info on how to download the model from HuggingFace can be found <a href='https://huggingface.co/docs/hub/en/models-downloading'>here</a>.
-
-## From Google Drive
-
-Download the model weights for Dyna-1 with ESM3 <a href='https://drive.google.com/file/d/1UJWpPKPgJH9AYADMIqL0MzyU772CrP9t/view?usp=share_link'> here </a> and Dyna-1 with ESM2 <a href='https://drive.google.com/file/d/1YPzIouDXfalXSHAde-Ke5VWxlprz3rcV/view?usp=share_link'> here</a>. Then, upload them to the `model/weights` folder. 
-
-You can download by using `gdown https://drive.google.com/file/uc?id=<google_code>`.
+![image](assets/dyna1.png)

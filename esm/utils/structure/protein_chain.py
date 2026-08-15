@@ -17,6 +17,7 @@ from biotite.application.dssp import DsspApp
 from biotite.database import rcsb
 from biotite.structure.io.npz import NpzFile
 from biotite.structure.io.pdb import PDBFile
+from biotite.structure.io.pdbx import PDBxFile, get_structure as get_pdbx_structure
 from cloudpathlib import CloudPath
 from scipy.spatial.distance import pdist, squareform
 from torch import Tensor
@@ -36,6 +37,35 @@ from esm.utils.structure.normalize_coordinates import (
 msgpack_numpy.patch()
 
 CHAIN_ID_CONST = "A"
+MMCIF_SUFFIXES = {".cif", ".mmcif"}
+
+
+def is_mmcif_path(path: PathOrBuffer) -> bool:
+    if isinstance(path, (str, Path, CloudPath)):
+        return Path(str(path)).suffix.lower() in MMCIF_SUFFIXES
+    return False
+
+
+def _structure_file_id(path: PathOrBuffer, id: str | None) -> str:
+    if id is not None:
+        return id
+    match path:
+        case Path() | str():
+            return Path(path).with_suffix("").name
+        case _:
+            return "null"
+
+
+def read_mmcif_atom_array(path: PathOrBuffer) -> bs.AtomArray:
+    """Read model 1 of an uncompressed mmCIF file via biotite."""
+    pdbx_file = PDBxFile.read(path)
+    try:
+        structure = get_pdbx_structure(pdbx_file, model=1, extra_fields=["b_factor"])
+    except Exception:
+        structure = get_pdbx_structure(pdbx_file, model=1)
+    if isinstance(structure, bs.AtomArrayStack):
+        structure = structure[0]
+    return structure
 
 
 ArrayOrTensor = TypeVar("ArrayOrTensor", np.ndarray, Tensor)
@@ -529,35 +559,13 @@ class ProteinChain:
         return cls.from_atom37(atom37_positions=atom37_positions, **kwargs)
 
     @classmethod
-    def from_pdb(
+    def _from_atom_array(
         cls,
-        path: PathOrBuffer,
-        chain_id: str = "detect",
-        id: str | None = None,
+        atom_array: bs.AtomArray,
+        chain_id: str,
+        file_id: str,
         is_predicted: bool = False,
     ) -> "ProteinChain":
-        """Return a ProteinChain object from an pdb file.
-
-        Args:
-            path (str | Path | io.TextIO): Path or buffer to read pdb file from. Should be uncompressed.
-            id (str, optional): String identifier to assign to structure. Will attempt to infer otherwise.
-            is_predicted (bool): If True, reads b factor as the confidence readout. Default: False.
-            chain_id (str, optional): Select a chain corresponding to (author) chain id. "detect" uses the
-                first detected chain
-        """
-
-        if id is not None:
-            file_id = id
-        else:
-            match path:
-                case Path() | str():
-                    file_id = Path(path).with_suffix("").name
-                case _:
-                    file_id = "null"
-
-        atom_array = PDBFile.read(path).get_structure(
-            model=1, extra_fields=["b_factor"]
-        )
         if chain_id == "detect":
             chain_id = atom_array.chain_id[0]
         atom_array = atom_array[
@@ -566,7 +574,7 @@ class ProteinChain:
             & (atom_array.chain_id == chain_id)
         ]
 
-        entity_id = 1  # Not supplied in PDBfiles
+        entity_id = 1  # Not supplied in PDB files
 
         sequence = "".join(
             (
@@ -621,6 +629,57 @@ class ProteinChain:
             residue_index=residue_index,
             insertion_code=insertion_code,
             confidence=confidence,
+        )
+
+    @classmethod
+    def from_pdb(
+        cls,
+        path: PathOrBuffer,
+        chain_id: str = "detect",
+        id: str | None = None,
+        is_predicted: bool = False,
+    ) -> "ProteinChain":
+        """Return a ProteinChain object from an pdb file.
+
+        Args:
+            path (str | Path | io.TextIO): Path or buffer to read pdb file from. Should be uncompressed.
+            id (str, optional): String identifier to assign to structure. Will attempt to infer otherwise.
+            is_predicted (bool): If True, reads b factor as the confidence readout. Default: False.
+            chain_id (str, optional): Select a chain corresponding to (author) chain id. "detect" uses the
+                first detected chain
+        """
+        atom_array = PDBFile.read(path).get_structure(
+            model=1, extra_fields=["b_factor"]
+        )
+        return cls._from_atom_array(
+            atom_array,
+            chain_id=chain_id,
+            file_id=_structure_file_id(path, id),
+            is_predicted=is_predicted,
+        )
+
+    @classmethod
+    def from_mmcif(
+        cls,
+        path: PathOrBuffer,
+        chain_id: str = "detect",
+        id: str | None = None,
+        is_predicted: bool = False,
+    ) -> "ProteinChain":
+        """Return a ProteinChain object from an mmCIF file.
+
+        Args:
+            path (str | Path | io.TextIO): Path or buffer to read mmCIF file from. Should be uncompressed.
+            id (str, optional): String identifier to assign to structure. Will attempt to infer otherwise.
+            is_predicted (bool): If True, reads b factor as the confidence readout. Default: False.
+            chain_id (str, optional): Select a chain corresponding to (author) chain id. "detect" uses the
+                first detected chain
+        """
+        return cls._from_atom_array(
+            read_mmcif_atom_array(path),
+            chain_id=chain_id,
+            file_id=_structure_file_id(path, id),
+            is_predicted=is_predicted,
         )
 
     @classmethod
