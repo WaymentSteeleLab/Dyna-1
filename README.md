@@ -12,7 +12,7 @@ Dyna-1 is a model introduced in our paper, ["Learning millisecond protein dynami
 
 Given a sequence and/or structure, Dyna-1 will predict the probability that each residue experiences micro-millisecond motions.
 
-To make Dyna-1 readily accessible for research purposes, we also provide a [Google Colab](https://colab.research.google.com/github/WaymentSteeleLab/Dyna-1/blob/main/colab/Dyna_1.ipynb).
+To make Dyna-1 readily accessible for research purposes, we also provide a [Google Colab](https://colab.research.google.com/github/WaymentSteeleLab/Dyna-1/blob/main/colab/Dyna_1.ipynb) and [HuggingFace Space](https://huggingface.co/spaces/gelnesr/Dyna-1). 
 
 We provide the curated datasets used to evaluate Dyna-1: 133 curated R1/R2/NOE datasets "RelaxDB" and 10 relaxation-dispersion Carr-Purcell-Meiboom-Gill datasets "RelaxDB-CPMG". 
 
