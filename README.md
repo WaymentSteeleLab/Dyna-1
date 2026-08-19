@@ -8,7 +8,7 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/WaymentSteeleLab/Dyna-1/blob/main/colab/Dyna_1.ipynb)
 [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/gelnesr/Dyna-1)
 
-Dyna-1 is a model introduced in our paper, ["Learning millisecond protein dynamics from what is missing in NMR spectra"](https://www.biorxiv.org/content/10.1101/2025.03.19.642801v1).
+Dyna-1 is a model introduced in our paper, ["Learning millisecond protein dynamics from what is missing in NMR spectra"](https://www.nature.com/articles/s41586-026-10989-4) in <i>Nature</I>.
 
 Given a sequence and/or structure, Dyna-1 will predict the probability that each residue experiences micro-millisecond motions.
 
@@ -49,7 +49,7 @@ in a CHTC sub script.
 
 # Inference
 
-The best-performing Dyna-1 is based on ESM-3. To run this version, you will need to make sure you can access to the ESM-3 `esm3-sm-open-v1` weights at HuggingFace [here](https://huggingface.co/EvolutionaryScale/esm3-sm-open-v1).  
+The best-performing Dyna-1 is based on ESM-3. The model weights are available on HuggingFace [here](https://huggingface.co/gelnesr/Dyna-1). 
 
 To run inference using our best-performing model, run:
 
@@ -121,11 +121,11 @@ Training code can be found in `train.py` and `train-baselines.py`. Related scrip
 If you are using our code, datasets, or model, please use the following citation:
 ```bibtex
 @article {Dyna-1,
-    author = {Wayment-Steele, Hannah K. and El Nesr, Gina and Hettiarachchi, Ramith and Kariyawasam, Hasindu and Ovchinnikov, Sergey and Kern, Dorothee},
+    author = {Wayment-Steele, Hannah K. and El Nesr, Gina and Hettiarachchi, Ramith and Ojoawo, Adedolapo and Kariyawasam, Hasindu and Ovchinnikov, Sergey and Kern, Dorothee},
     title = {Learning millisecond protein dynamics from what is missing in NMR spectra},
-    year = {2025},
-    doi = {10.1101/2025.03.19.642801},
-    journal = {bioRxiv}
+    year = {2026},
+    doi = {10.1038/s41586-026-10989-4},
+    journal = {Nature}
 }
 ```
 # License Terms
