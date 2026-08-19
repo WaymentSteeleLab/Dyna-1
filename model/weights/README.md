@@ -3,11 +3,11 @@
 
 # Dyna-1 Model Card
 
-Dyna-1 is a model introduced in our paper, ["Learning millisecond protein dynamics from what is missing in NMR spectra"](https://www.biorxiv.org/content/10.1101/2025.03.19.642801v1).
+Dyna-1 is a model introduced in our paper, ["Learning millisecond protein dynamics from what is missing in NMR spectra"](https://www.nature.com/articles/s41586-026-10989-4).
 
 Given a sequence and/or structure, Dyna-1 will predict the probability that each residue experiences micro-millisecond motions.
 
-Dyna-1 was achieved using the `esm3-sm-open-v1` weights from ESM-3. Inference with this model is subject to the EvolutionaryScale Cambrian Non-Commercial License Agreement of the ESM-3 Model and requires read permission of the weights found [here](https://huggingface.co/EvolutionaryScale/esm3-sm-open-v1). We also make available an alternate version of Dyna-1 that uses ESM-2 embeddings; use of this model is subject to a Non-Commercial License Agreement. 
+Dyna-1 was achieved using the `esm3-sm-open-v1` weights from ESM-3. The model weights can be found on HuggingFace [here](https://huggingface.co/gelnesr/Dyna-1). 
 
 If you are using our code, datasets, or model, please use the following citation:
 ```bibtex
@@ -19,4 +19,3 @@ If you are using our code, datasets, or model, please use the following citation
     journal = {bioRxiv}
 }
 ```
-![image](assets/dyna1.png)
