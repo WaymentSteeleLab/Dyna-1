@@ -1,21 +1,40 @@
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/WaymentSteeleLab/Dyna-1/blob/main/colab/Dyna_1.ipynb)
-[![WaymentSteeleLab - Dyna-1](https://img.shields.io/static/v1?label=WaymentSteeleLab&message=Dyna-1&color=blue&logo=github)](https://github.com/WaymentSteeleLab/Dyna-1) 
+# Download Model Weights
 
-# Dyna-1 Model Card
+To access the model weights, we provide two options.
 
-Dyna-1 is a model introduced in our paper, ["Learning millisecond protein dynamics from what is missing in NMR spectra"](https://www.nature.com/articles/s41586-026-10989-4).
+## From 🤗HuggingFace
 
-Given a sequence and/or structure, Dyna-1 will predict the probability that each residue experiences micro-millisecond motions.
+Dyna-1 model weights (for both ESM-3 and ESM-2 versions) can be accessed through <a href='https://github.com/WaymentSteeleLab/Dyna-1/tree/main'>HuggingFace/gelnesr/Dyna-1</a>. 
 
-Dyna-1 was achieved using the `esm3-sm-open-v1` weights from ESM-3. The model weights can be found on HuggingFace [here](https://huggingface.co/gelnesr/Dyna-1). 
+We recommend setting up and using `huggingface-cli` by running the following commands on the command line.
+
+```
+pip install -U "huggingface_hub[cli]"
+huggingface-cli download gelnesr/Dyna-1 --include "weights/*" --local-dir model/
+```
+
+Another option is to use the `git clone` to download, set the download directory to `model/weights`. This will require doing the following:
+
+```
+git lfs install
+git clone git@hf.co:gelnesr/Dyna-1
+```
+
+More info on how to download the model from HuggingFace can be found <a href='https://huggingface.co/docs/hub/en/models-downloading'>here</a>.
+
+## From Google Drive
+
+Download the model weights for Dyna-1 with ESM3 <a href='https://drive.google.com/file/d/1UJWpPKPgJH9AYADMIqL0MzyU772CrP9t/view?usp=share_link'> here </a> and Dyna-1 with ESM2 <a href='https://drive.google.com/file/d/1YPzIouDXfalXSHAde-Ke5VWxlprz3rcV/view?usp=share_link'> here</a>. Then, upload them to the `model/weights` folder. 
+
+You can download by using `gdown https://drive.google.com/file/uc?id=<google_code>`.
 
 If you are using our code, datasets, or model, please use the following citation:
 ```bibtex
 @article {Dyna-1,
-    author = {Wayment-Steele, Hannah K. and El Nesr, Gina and Hettiarachchi, Ramith and Kariyawasam, Hasindu and Ovchinnikov, Sergey and Kern, Dorothee},
+    author = {Wayment-Steele, Hannah K. and El Nesr, Gina and Hettiarachchi, Ramith and Ojoawo, Adedolapo and Kariyawasam, Hasindu and Ovchinnikov, Sergey and Kern, Dorothee},
     title = {Learning millisecond protein dynamics from what is missing in NMR spectra},
-    year = {2025},
-    doi = {10.1101/2025.03.19.642801},
-    journal = {bioRxiv}
+    year = {2026},
+    doi = {10.1038/s41586-026-10989-4},
+    journal = {Nature}
 }
 ```
