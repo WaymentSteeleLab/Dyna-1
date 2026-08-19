@@ -37,7 +37,7 @@ This package requires PyTorch, ideally with GPU support. For more information, f
 ```
 pip install -r requirements.txt
 ```
-Install should take at most a few minutes. Then, download the model weights and upload them to the `model/weights` folder. The weights can be found on 🤗HuggingFace at <a href='https://huggingface.co/gelnesr/Dyna-1'>gelnesr/Dyna-1</a>. More information on how to download them can be found <a href='https://github.com/gelnesr/Dyna-1-public/blob/main/model/weights/README.md'>here</a>. 
+Install should take at most a few minutes. Then, download the model weights and upload them to the `model/weights` folder. The weights can be found on 🤗HuggingFace at <a href='https://huggingface.co/gelnesr/Dyna-1'>gelnesr/Dyna-1</a>. More information on how to download them can be found <a href='https://github.com/WaymentSteeleLab/Dyna-1/blob/main/model/weights/README.md'>here</a>. 
 
 *CHTC users*: example scripts to build Apptainer and run Dyna-1 on CHTC are located [here](https://github.com/WaymentSteeleLab/apptainers/tree/main/dyna1).
 
