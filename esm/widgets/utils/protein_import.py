@@ -102,6 +102,15 @@ class ProteinImporter:
                     chain_id = protein.chain_id
                 except KeyError:
                     raise ValueError("PDB file not found in workspace")
+            elif pdb_id.lower().endswith((".cif", ".mmcif")):
+                try:
+                    str_content = self._protein_workspace[pdb_id]
+                    protein = ProteinChain.from_mmcif(
+                        StringIO(str_content), chain_id=chain_id
+                    )
+                    chain_id = protein.chain_id
+                except KeyError:
+                    raise ValueError("mmCIF file not found in workspace")
             else:
                 protein = ProteinChain.from_rcsb(pdb_id=pdb_id, chain_id=chain_id)
                 chain_id = protein.chain_id

@@ -99,8 +99,7 @@ def main(args):
         token_seq = tokenizer.encode(args.sequence, add_special_tokens=False, return_tensors='np')
         seq_input = torch.from_numpy(token_seq).to(DEVICE)
         sequence_id = seq_input != 4099
-    
-    sequence_id = seq_input != 4099
+
     logits = model((seq_input, struct_input), sequence_id)
     p = utils.prob_adjusted(logits).cpu().detach().numpy()
 

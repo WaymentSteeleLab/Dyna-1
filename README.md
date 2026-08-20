@@ -1,16 +1,18 @@
 # Dyna-1
+
+![image](assets/dyna1.png)
+
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-yellow)](https://github.com/WaymentSteeleLab/makeshift/blob/main/LICENSE)
 [![Requires Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/WaymentSteeleLab/Dyna-1/blob/main/colab/Dyna_1.ipynb)
 [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/gelnesr/Dyna-1)
-![image](assets/dyna1.png)
 
-Dyna-1 is a model introduced in our paper, ["Learning millisecond protein dynamics from what is missing in NMR spectra"](https://www.biorxiv.org/content/10.1101/2025.03.19.642801v1).
+Dyna-1 is a model introduced in our paper, ["Learning millisecond protein dynamics from what is missing in NMR spectra"](https://www.nature.com/articles/s41586-026-10989-4) in <i>Nature</I>.
 
 Given a sequence and/or structure, Dyna-1 will predict the probability that each residue experiences micro-millisecond motions.
 
-Dyna-1 was achieved using the `esm3-sm-open-v1` weights from ESM-3. Inference with this model is subject to the EvolutionaryScale Cambrian Non-Commercial License Agreement of the ESM-3 Model and requires read permission of the weights found [here](https://huggingface.co/EvolutionaryScale/esm3-sm-open-v1). We also make available an alternate version of Dyna-1 that uses ESM-2 embeddings; use of this model is subject to a Non-Commercial License Agreement. 
-
-To make Dyna-1 readily accessible for research purposes, we also provide a [Google Colab](https://colab.research.google.com/github/WaymentSteeleLab/Dyna-1/blob/main/colab/Dyna_1.ipynb).
+To make Dyna-1 readily accessible for research purposes, we also provide a [Google Colab](https://colab.research.google.com/github/WaymentSteeleLab/Dyna-1/blob/main/colab/Dyna_1.ipynb) and [HuggingFace Space](https://huggingface.co/spaces/gelnesr/Dyna-1). 
 
 We provide the curated datasets used to evaluate Dyna-1: 133 curated R1/R2/NOE datasets "RelaxDB" and 10 relaxation-dispersion Carr-Purcell-Meiboom-Gill datasets "RelaxDB-CPMG". 
 
@@ -35,7 +37,7 @@ This package requires PyTorch, ideally with GPU support. For more information, f
 ```
 pip install -r requirements.txt
 ```
-Then, download the model weights and upload them to the `model/weights` folder. The weights can be found on 🤗HuggingFace at <a href='https://huggingface.co/gelnesr/Dyna-1'>gelnesr/Dyna-1</a>. More information on how to download them can be found <a href='https://github.com/gelnesr/Dyna-1-public/blob/main/model/weights/README.md'>here</a>. 
+Install should take at most a few minutes. Then, download the model weights and upload them to the `model/weights` folder. The weights can be found on 🤗HuggingFace at <a href='https://huggingface.co/gelnesr/Dyna-1'>gelnesr/Dyna-1</a>. More information on how to download them can be found <a href='https://github.com/WaymentSteeleLab/Dyna-1/blob/main/model/weights/README.md'>here</a>. 
 
 *CHTC users*: example scripts to build Apptainer and run Dyna-1 on CHTC are located [here](https://github.com/WaymentSteeleLab/apptainers/tree/main/dyna1).
 
@@ -47,10 +49,7 @@ in a CHTC sub script.
 
 # Inference
 
-The best-performing Dyna-1 is based on ESM-3. To run this version, you will have to request access to the ESM-3 `esm3-sm-open-v1` weights at HuggingFace [here](https://huggingface.co/EvolutionaryScale/esm3-sm-open-v1). Follow the steps to agree to their License terms and receive your access token to the model weights. 
-
-> [!NOTE]
-> If this is your first time requesting access to the ESM-3 weights, you may need to set up your access token. For more information on how to set up an SSH token, please consult <a href='https://huggingface.co/docs/hub/en/security-git-ssh'>this</a> tutorial. Alternatively, you can use the huggingface login prompt, which will prompt you for the access token each time you re-instantiate Dyna-1. This can be configured by adding the following code to the inference script: `from huggingface_hub import login; login()` 
+The best-performing Dyna-1 is based on ESM-3. The model weights are available on HuggingFace [here](https://huggingface.co/gelnesr/Dyna-1). 
 
 To run inference using our best-performing model, run:
 
@@ -102,32 +101,40 @@ set cartoon_putty_scale_max, 10 #max_radius / min_radius
 
 *RelaxDB-CPMG* contains motion labels derived from 10 CPMG relaxation-dispersion datasets curated from literature.
 
+*mBMRB_data* contains files indicating protein sequence and assignment completion curated from the BMRB.
+
 These datasets are made available on 🤗HuggingFace at <a href='https://huggingface.co/datasets/gelnesr/RelaxDB'>datasets/gelnesr/RelaxDB</a>.
 
 In this repo, you can find: 
-- data formatted for input into Dyna-1 is in `data/RelaxDB_pkls_22jan2025.zip`
+- data formatted for input into Dyna-1 is in `data/RelaxDB/RelaxDB_pkls_22jan2025.zip` and `data/mBMRB_data.zip`
 - datasets in json format is in `data/RelaxDB_datasets/`
 - demo notebooks for demo notebooks for visualizing and using datasets to evaluate model outputs in `analysis/`
 
+Complete CPMG datasets and analysis scripts (RelaxDB-CPMG and two prospectively-tested proteins Chi19a and yjbJ) are hosted on [Zenodo](https://zenodo.org/records/20834076). 
+
 # Training
 
-Training code will be made available upon journal publication.
+Training code can be found in `train.py` and `train-baselines.py`. Related scripts can be found under `scripts\`. To define which data split to use, modify the .yml files in `configs`. 
 
 # Citation
 
 If you are using our code, datasets, or model, please use the following citation:
 ```bibtex
 @article {Dyna-1,
-    author = {Wayment-Steele, Hannah K. and El Nesr, Gina and Hettiarachchi, Ramith and Kariyawasam, Hasindu and Ovchinnikov, Sergey and Kern, Dorothee},
+    author = {Wayment-Steele, Hannah K. and El Nesr, Gina and Hettiarachchi, Ramith and Ojoawo, Adedolapo and Kariyawasam, Hasindu and Ovchinnikov, Sergey and Kern, Dorothee},
     title = {Learning millisecond protein dynamics from what is missing in NMR spectra},
-    year = {2025},
-    doi = {10.1101/2025.03.19.642801},
-    journal = {bioRxiv}
+    year = {2026},
+    doi = {10.1038/s41586-026-10989-4},
+    journal = {Nature}
 }
 ```
+# License Terms
+
+These models and code are available under [MIT License](LICENSE.md).
+
 # Acknowledgements
 
-We would like to acknowledge the Evolutionary Scale Team for their contributions to the field with ESM-3. The code in `esm` is imported from `evolutionaryscale/esm` with all modifications identified and includes the associated LICENSE terms for the ESM-3 model.
+We would like to acknowledge the Evolutionary Scale Team for their contributions to the field with ESM-3. The code in `esm` is imported from `evolutionaryscale/esm` with all modifications identified.
 
 We would also like to acknowledge the FAIR Team for their contributions to the field with ESM-2. The ESM-2 model is called using the HuggingFace API call.
 
