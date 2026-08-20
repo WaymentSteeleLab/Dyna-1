@@ -254,10 +254,26 @@ class ProteinComplex:
         return ProteinComplex.from_chains(chains)
 
     @classmethod
+    def from_mmcif(cls, path: PathOrBuffer, id: str | None = None) -> "ProteinComplex":
+        mmcif_chains = []
+        from esm.utils.structure.mmcif_parsing import MmcifWrapper
+
+        mmcif = MmcifWrapper.read(path, id)
+        for chain in bs.chain_iter(mmcif.structure):
+            chain = chain[bs.filter_amino_acids(chain) & ~chain.hetero]
+            if len(chain) == 0:
+                continue
+            chain_id = chain.chain_id[0]
+            if chain_id not in mmcif.chain_to_seqres:
+                continue
+            mmcif_chains.append(ProteinChain.from_mmcif(mmcif, chain_id=chain_id, id=id))
+        return ProteinComplex.from_chains(mmcif_chains)
+
+    @classmethod
     def from_rcsb(cls, pdb_id: str):
-        """Fetch a protein complex from the RCSB PDB database."""
-        f: io.StringIO = rcsb.fetch(pdb_id, "pdb")  # type: ignore
-        return cls.from_pdb(f, id=pdb_id)
+        """Fetch a protein complex from RCSB as mmCIF."""
+        f: io.StringIO = rcsb.fetch(pdb_id, "cif")  # type: ignore
+        return cls.from_mmcif(f, id=pdb_id)
 
     def to_pdb(self, path: PathOrBuffer, include_insertions: bool = True):
         atom_array = None

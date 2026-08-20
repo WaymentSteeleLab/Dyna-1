@@ -72,6 +72,20 @@ class ESMProtein(ProteinType):
         return cls.from_protein_chain(protein_chain)
 
     @classmethod
+    def from_mmcif(
+        cls,
+        path: PathOrBuffer,
+        chain_id: str = "detect",
+        id: str | None = None,
+        is_predicted: bool = False,
+    ) -> ESMProtein:
+        resolved = None if chain_id == "detect" else chain_id
+        protein_chain = ProteinChain.from_mmcif(
+            path=path, chain_id=resolved, id=id, is_predicted=is_predicted
+        )
+        return cls.from_protein_chain(protein_chain)
+
+    @classmethod
     def from_protein_chain(
         cls, protein_chain: ProteinChain, with_annotations: bool = False
     ) -> ESMProtein:

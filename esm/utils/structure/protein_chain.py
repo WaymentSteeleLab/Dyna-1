@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import io
+import warnings
 from dataclasses import asdict, dataclass, replace
 from functools import cached_property
 from pathlib import Path
-from typing import Sequence, TypeVar, Union
+from typing import Mapping, Sequence, TypeVar, Union
 
 import biotite.structure as bs
 import brotli
@@ -27,6 +28,10 @@ from esm.utils.misc import slice_python_object_as_numpy
 from esm.utils.structure.affine3d import Affine3D
 from esm.utils.structure.aligner import Aligner
 from esm.utils.structure.metrics import compute_lddt_ca
+from esm.utils.structure.mmcif_parsing import (
+    PLDDT_B_FACTOR_SCALE,
+    MmcifWrapper,
+)
 from esm.utils.structure.normalize_coordinates import (
     apply_frame_to_coords,
     get_protein_normalization_frame,
@@ -36,6 +41,96 @@ from esm.utils.structure.normalize_coordinates import (
 msgpack_numpy.patch()
 
 CHAIN_ID_CONST = "A"
+MMCIF_SUFFIXES = {".cif", ".mmcif"}
+
+
+def is_mmcif_path(path: PathOrBuffer) -> bool:
+    if isinstance(path, (str, Path, CloudPath)):
+        return Path(str(path)).suffix.lower() in MMCIF_SUFFIXES
+    return False
+
+
+def _num_non_null_residues(seqres_to_structure_chain: Mapping[int, object]) -> int:
+    return sum(
+        residue.residue_number is not None
+        for residue in seqres_to_structure_chain.values()
+    )
+
+
+def _resolve_mmcif_chain_id(mmcif: MmcifWrapper, chain_id: str | None) -> str | None:
+    """Map dyna1 chain args onto Biohub author IDs.
+
+    Biohub `from_mmcif` keys off author IDs (AAA). RCSB also prints the label ID (A).
+    """
+    if chain_id in (None, "detect"):
+        return None
+    if chain_id in mmcif.chain_to_seqres:
+        return chain_id
+    auth = mmcif.label_to_auth.get(chain_id)
+    if auth in mmcif.chain_to_seqres:
+        return auth
+    raise ValueError(
+        f"Chain {chain_id!r} not found. "
+        f"Author IDs: {list(mmcif.chain_to_seqres)}. "
+        f"Label/PDB IDs: {list(mmcif.label_to_auth)}."
+    )
+
+
+def chain_to_ndarray(
+    atom_array: bs.AtomArray, mmcif: MmcifWrapper, chain_id: str, is_predicted=False
+):
+    entity_id = None
+    for entity, chains in mmcif.entities.items():
+        if chain_id in chains:
+            entity_id = entity
+    num_res = len(mmcif.chain_to_seqres[chain_id])
+    sequence = mmcif.chain_to_seqres[chain_id]
+
+    atom_positions = np.full([num_res, RC.atom_type_num, 3], np.nan)
+    atom_mask = np.full([num_res, RC.atom_type_num], False, dtype=bool)
+    residue_index = np.full([num_res], -1, dtype=np.int64)
+    insertion_code = np.full([num_res], "", dtype="<U4")
+
+    confidence = np.ones([num_res], dtype=np.float32)
+
+    for res_index in range(num_res):
+        chain = atom_array[atom_array.chain_id == chain_id]
+        assert isinstance(chain, bs.AtomArray)
+        res_at_position = mmcif.seqres_to_structure[chain_id][res_index]
+
+        if res_at_position.residue_number is None:
+            continue
+
+        residue_index[res_index] = res_at_position.residue_number
+        insertion_code[res_index] = res_at_position.insertion_code
+        res = chain[
+            (chain.res_id == res_at_position.residue_number)
+            & (chain.ins_code == res_at_position.insertion_code)
+            & (chain.hetero == res_at_position.hetflag)
+        ]
+        assert isinstance(res, bs.AtomArray)
+
+        for atom in res:
+            atom_name = atom.atom_name
+            if atom_name == "SE" and atom.res_name == "MSE":
+                atom_name = "SD"
+
+            if atom_name in RC.atom_order:
+                atom_positions[res_index, RC.atom_order[atom_name]] = atom.coord
+                atom_mask[res_index, RC.atom_order[atom_name]] = True
+                if is_predicted and atom_name == "CA":
+                    confidence[res_index] = atom.b_factor / PLDDT_B_FACTOR_SCALE
+
+    assert all(sequence), "Some residue name was not specified correctly"
+    return (
+        sequence,
+        atom_positions,
+        atom_mask,
+        residue_index,
+        insertion_code,
+        confidence,
+        entity_id,
+    )
 
 
 ArrayOrTensor = TypeVar("ArrayOrTensor", np.ndarray, Tensor)
@@ -624,10 +719,87 @@ class ProteinChain:
         )
 
     @classmethod
+    def from_mmcif(
+        cls,
+        path: PathOrBuffer | MmcifWrapper,
+        chain_id: str | None = None,
+        entity_id: int | None = None,
+        id: str | None = None,
+        is_predicted: bool = False,
+        keep_source: bool = False,
+    ):
+        """Return a ProteinChain object from an mmcif file.
+
+        `chain_id` is the author ID (AAA). Label/PDB IDs (A) are remapped.
+        If neither `chain_id` nor `entity_id` is specified, defaults to the first entity.
+        """
+        if isinstance(path, MmcifWrapper):
+            mmcif = path
+        else:
+            mmcif = MmcifWrapper.read(path, id)
+
+        chain_id = _resolve_mmcif_chain_id(mmcif, chain_id)
+
+        # If neither chain_id nor entity_id is specified, default to the first entity
+        if chain_id is None and entity_id is None:
+            if not mmcif.entities:
+                raise ValueError("Structure contains no entities")
+            entity_id = min(mmcif.entities.keys())
+
+        if entity_id is not None:
+            assert chain_id is None
+            if entity_id not in mmcif.entities:
+                raise ValueError(
+                    f"Structure does not contain entity `{entity_id}`. "
+                    f"Valid entities: {mmcif.entities.keys()}"
+                )
+            chains = mmcif.entities[entity_id]
+            chain_id = max(
+                chains,
+                key=lambda chain: _num_non_null_residues(
+                    mmcif.seqres_to_structure[chain]
+                ),
+            )
+        else:
+            assert chain_id is not None
+            for entity, chains in mmcif.entities.items():
+                if chain_id in chains:
+                    entity_id = entity
+            if entity_id is None:
+                warnings.warn(
+                    "Failed to detect entity_id from mmcif file, it may be malformed."
+                )
+
+        atom_array = mmcif.structure
+        (
+            sequence,
+            atom_positions,
+            atom_mask,
+            residue_index,
+            insertion_code,
+            confidence,
+            _,
+        ) = chain_to_ndarray(atom_array, mmcif, chain_id, is_predicted)
+        assert all(sequence), "Some residue name was not specified correctly"
+
+        return cls(
+            id=mmcif.id,
+            sequence=sequence,
+            chain_id=chain_id,
+            entity_id=entity_id,
+            atom37_positions=atom_positions,
+            atom37_mask=atom_mask.astype(bool),
+            residue_index=residue_index,
+            insertion_code=insertion_code,
+            confidence=confidence,
+        )
+
+    @classmethod
     def from_rcsb(cls, pdb_id: str, chain_id: str = "detect"):
-        """Fetch a protein chain from the RCSB PDB database."""
-        f: io.StringIO = rcsb.fetch(pdb_id, "pdb")  # type: ignore
-        return cls.from_pdb(f, chain_id=chain_id, id=pdb_id)
+        """Fetch a protein chain from RCSB as mmCIF (Biohub/esm)."""
+        resolved = None if chain_id == "detect" else chain_id
+        f: io.StringIO = rcsb.fetch(pdb_id, "cif")  # type: ignore
+        return cls.from_mmcif(f, chain_id=resolved, id=pdb_id)
 
     @classmethod
     def from_atomarray(

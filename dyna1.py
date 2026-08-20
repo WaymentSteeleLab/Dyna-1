@@ -1,7 +1,9 @@
 import warnings
 warnings.filterwarnings("ignore")
 from collections import OrderedDict
+import os
 import re
+from pathlib import Path
 import utils
 import torch
 import random
@@ -12,7 +14,7 @@ import MDAnalysis as mda
 
 from model.model import *
 from esm.sdk.api import ESMProtein
-from esm.utils.structure.protein_chain import ProteinChain
+from esm.utils.structure.protein_chain import ProteinChain, is_mmcif_path
 from transformers import AutoTokenizer
 
 warnings.filterwarnings("ignore")
@@ -26,12 +28,16 @@ def handle_name(args):
         if len(args.pdb) == 4:
             pdb_name = args.pdb
         else:
-            pdb_name = args.pdb.split('/') [-1][:-4]
+            pdb_name = Path(args.pdb).stem
     else:
         pdb_name = random.randint(0, 100000)
     return f'{pdb_name}-Dyna1'
 
 def get_pdb_from_upload(args, pdb_id):
+    if is_mmcif_path(args.pdb):
+        chain_id = None if args.chain == "detect" else args.chain
+        return ProteinChain.from_mmcif(args.pdb, chain_id=chain_id, id=pdb_id)
+
     fixed_pdb = None
     try:
         protein_chain = ProteinChain.from_pdb(args.pdb, chain_id=args.chain, id=pdb_id)
@@ -114,15 +120,15 @@ def main(args):
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Example script with integer and string arguments')
     parser.add_argument('--name', type=str, help='name of job')
-    parser.add_argument('--pdb', type=str, help='input pdb path or 4-letter code')
-    parser.add_argument('--chain', type=str, default='A', help='which chain of the pdb to use, default is chain A')
+    parser.add_argument('--pdb', type=str, help='input pdb/cif path or 4-letter PDB code')
+    parser.add_argument('--chain', type=str, default='A', help='author (AAA) or label/PDB (A) chain ID; default A')
     parser.add_argument('--sequence', type=str, help='sequence to use, will overide the sequence of the pdb')
     parser.add_argument('--use_pdb_seq', action='store_true', help='whether to use the sequence of the pdb')
     parser.add_argument('--save_dir', type=str, default = '.', help='directory to save outputs')
     parser.add_argument('--write_to_pdb', action='store_true', help='predictions written to the b-factors of the pdb')
     args = parser.parse_args()
     if not (args.sequence or args.pdb):
-        exit('Inference requires either a sequence or pdb input')
+        exit('Inference requires either a sequence or pdb/cif input')
 
     if args.sequence:
         alphabets = {'protein': re.compile('^[acdefghiklmnpqrstvwy]*$', re.I)}
